@@ -39,7 +39,48 @@ export default class Cards extends React.Component {
       })
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    console.log("Component Did Update");
+
+    if(prevState.userAPI !== this.state.userAPI) {
+      Axios.get(this.state.userAPI)
+      .then( res => {
+        console.log(res);
+        this.setState({userData: res.data})
+      })
+      .catch( err => {
+        console.log(err);
+      })
+  
+    Axios.get(`${this.state.userAPI}/followers`)
+      .then( res => {
+        console.log("followers api : " + res);
+        this.setState({ followers: res.data })
+      })
+      .catch( err => {
+        console.log(err);
+      })
+
+    }
+    
+  }
+
   //Class Methods
+  setAPIQuery = ev => {
+    this.setState({userAPIquery: ev.target.value})
+  }
+  setAPIByLogin = ev => {
+    this.setState({})
+  }
+  setAPISelection = loginHandle => {
+    this.setState({userAPIquery: loginHandle})
+  }
+
+  setNewUserAPI = ev => {
+    ev.preventDefault();
+    this.setState({userAPI: "https://api.github.com/users/" + this.state.userAPIquery});
+
+  }
 
   render() {
     console.log("Render: Cards")
@@ -48,11 +89,13 @@ export default class Cards extends React.Component {
 
         <Card>
           <CardTitle>
-            <form>
+            <form onSubmit={this.setNewUserAPI}>
               <input 
                 placeholder="User" 
-                
+                onChange={this.setAPIQuery}
+                value={this.state.userAPIquery}
               />
+              <button>Submit</button>
             </form>
           </CardTitle>
           <CardBody>
@@ -71,7 +114,7 @@ export default class Cards extends React.Component {
               {
                 this.state.followers.map((d, i) => (
                   
-                  <CardText key={i}>{d.login}</CardText>
+                  <Button key={i} onClick={() => this.setAPISelection(d.login)}>{d.login}</Button>
                   
                 ))
               }
@@ -80,20 +123,6 @@ export default class Cards extends React.Component {
             <Button></Button>
           </CardBody>
         </Card>
-
-        <ul>
-          <li><h2>Followers</h2></li>
-          {
-            //map follower names
-          }
-        </ul>
-
-        <ul>
-          <li><h2>Following</h2></li>
-          {
-            //map following names
-          }
-        </ul>
 
       </>
     )
