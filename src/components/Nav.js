@@ -22,6 +22,7 @@ function Nav() {
       <h1>Select a user: </h1>
       <form>
         <select onChange={setDisplayedUser}>
+          <option>{displayedUser}</option>
           {
             followerData ?
             followerData.map(data => (
