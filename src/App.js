@@ -1,26 +1,68 @@
 import React from 'react';
-import logo from './logo.svg';
+import Axios from 'axios';
+import Nav from './components/Nav';
+import User from './components/User';
+
+// contexts
+import UserDisplayContext from './contexts/UserDisplayContext';
 import './App.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends React.Component {
+  constructor() {
+    super()
+    this.state = {
+      displayedUser: '',
+      userData: {},
+      componentMounted: false
+    }
+  }
+
+  componentDidMount() {
+    this.setState({ displayedUser: 'itshui3' });
+    this.setState({ componentMounted: true });
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.displayedUser !== this.state.displayedUser && this.state.componentMounted) {
+      Axios.get(`https://api.github.com/users/${this.state.displayedUser}`)
+
+      .then( res => {
+        console.log(res)
+        this.setState({ userData: res.data })
+      })
+
+      .catch( err => {
+        console.log(err)
+      })
+    }
+  }
+
+  componentWillUnmount() {
+    this.setState({ componentMounted: false })
+  }
+
+  setDisplayedUser = ev => {
+    this.setState({ displayedUser: ev.target.value })
+  }
+
+  render() {
+    return (
+      <div className="App">
+        <UserDisplayContext.Provider value={{
+          displayedUser: this.state.displayedUser,
+          userData: this.state.userData,
+          setDisplayedUser: this.setDisplayedUser
+        }}>
+          <Nav />
+          <User />
+
+        </UserDisplayContext.Provider>
+        
+      </div>
+    );
+
+  }
+
 }
 
 export default App;
